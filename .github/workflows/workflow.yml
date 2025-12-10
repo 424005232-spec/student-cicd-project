@@ -30,4 +30,3 @@ jobs:
         # Create a dummy test file if none exists
         echo "def test_dummy(): assert True" > test_dummy.py
         nosetests -v
-
