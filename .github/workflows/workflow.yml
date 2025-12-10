@@ -1,13 +1,17 @@
 name: Python CI
 
 on:
+  # Triggers the workflow on push or pull request to the main branch
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  # Allows manual running from the GitHub Actions UI
+  workflow_dispatch:
 
 jobs:
   build:
+    # Runs the job on the latest Ubuntu environment
     runs-on: ubuntu-latest
 
     steps:
@@ -15,6 +19,8 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Set up Python
+      # Use an older version like 3.9 if your project requires it,
+      # but 3.11 is fine now that we removed 'nose'.
       uses: actions/setup-python@v4
       with:
         python-version: 3.11
@@ -22,11 +28,17 @@ jobs:
     - name: Lint with flake8 (ignore errors)
       run: |
         pip install flake8
-        flake8 . || true   # This prevents lint errors from failing the workflow
+        # The '|| true' ensures linting failures don't stop the whole workflow
+        flake8 . || true
 
-    - name: Run unit tests with nose (safe)
+    # --- THIS IS THE UPDATED STEP (Fixes the collections.Callable error) ---
+    - name: Run unit tests with pytest
       run: |
-        pip install nose
-        # Create a dummy test file if none exists
+        # 1. Install pytest instead of the incompatible 'nose'
+        pip install pytest
+
+        # 2. Run tests. 
+        # Create a dummy test file if no real tests exist, otherwise remove this line.
         echo "def test_dummy(): assert True" > test_dummy.py
-        nosetests -v
+        pytest -v
+    # ------------------------------------------------------------------------
